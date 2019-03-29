@@ -1,3 +1,3 @@
 # php-proxy
 
-Creation of a proxy for my PHP course.
+Devoir : création d'un proxy en PHP.
