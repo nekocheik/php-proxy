@@ -22,21 +22,20 @@ $pdo = new PDO(
 
 // Device detection --------------------------------------------------
 $useragent = $_SERVER['HTTP_USER_AGENT'];
-$tablet = false;
-$mobile = false;
-$desktop = false;
+
 
 if (preg_match('/(tablet|ipad|playbook)|(android(?!.*(mobi|opera mini)))/i', $useragent)) {
-  $tablet = true;
+  $device = 'chemin_tablet';
 } elseif (preg_match('/(up.browser|up.link|mmp|symbian|smartphone|iphone|ipod|midp|wap|phone|android|iemobile)/i', $useragent)) {
-  $mobile = true;
+  $device = 'chemin_mobile';
 } elseif (preg_match('/windows|win32|macintosh/i', $useragent)) {
-  $desktop = true;
+  $device = 'chemin_pc';
 }
 
 //image we need to display on the page ---------------------------------
 $url = 'images-eds-ssl.xboxlive.com/image?url=8Oaj9Ryq1G1_p3lLnXlsaZgGzAie6Mnu24_PawYuDYIoH77pJ.X5Z.MqQPibUVTchUnAj40aHvUUo7k4TwoaCpZO27NRghcEK2tizD.Eyd2wDhRaYXz0OiGUw4EmWznInThMyIISqSkVRyxQgUIdGKsQQ2ykjwRk144gwcL0Y1.tslxhfnlXWvumypxP8dGsISaldsFK8MJekAJIDuKuEGER8EcbN8hrroMSRiv09JM-&h=1080&w=1920&format=jpg';
-$prefix = 'http://localhost:8080/coursphp/primael-proxy///';
+$prefix = 'http://localhost:8080' . $_SERVER['REQUEST_URI'];
+
 
 
 //resize function --------------------------------------------------------
@@ -65,25 +64,12 @@ $img = $resultat->fetch(PDO::FETCH_ASSOC);
 
 //if already downloaded, display the right size
 if ($img['url']) {
-  if ($mobile) {
-    $resultat = $pdo->query("SELECT chemin_mobile FROM images WHERE url ='$url'");
+    $resultat = $pdo->query("SELECT $device FROM images WHERE url ='$url'");
     $path = $resultat->fetch(PDO::FETCH_ASSOC);
+    var_dump($device)
     ?>
-    <img src="<?php echo $prefix . $path['chemin_mobile'] ?>">
+    <img src="<?php echo $prefix . $path[$device] ?>">
     <?php
-  } elseif ($tablet) {
-    $resultat = $pdo->query("SELECT chemin_tablet FROM images WHERE url ='$url'");
-    $path = $resultat->fetch(PDO::FETCH_ASSOC);
-    ?>
-    <img src="<?php echo $prefix . $path['chemin_tablet'] ?>">
-    <?php
-  } elseif ($desktop) {
-    $resultat = $pdo->query("SELECT chemin_pc FROM images WHERE url ='$url'");
-    $path = $resultat->fetch(PDO::FETCH_ASSOC);
-    ?>
-    <img src="<?php echo $prefix . $path['chemin_pc'] ?>">
-    <?php
-  }
 }
 //if the url is not already in the database
 else {  
@@ -123,25 +109,14 @@ else {
         )"
         );
 
-        if ($mobile) {
-          $resultat = $pdo->query("SELECT chemin_mobile FROM images WHERE url ='$url'");
+        if ($device) {
+          $resultat = $pdo->query("SELECT $device FROM images WHERE url ='$url'");
           $path = $resultat->fetch(PDO::FETCH_ASSOC);
-          ?>
-          <img src="<?php echo $prefix . $path['chemin_mobile'] ?>">
-          <?php
-        } elseif ($tablet) {
-          $resultat = $pdo->query("SELECT chemin_tablet FROM images WHERE url ='$url'");
-          $path = $resultat->fetch(PDO::FETCH_ASSOC);
-          ?>
-          <img src="<?php echo $prefix . $path['chemin_tablet'] ?>">
-          <?php
-        } elseif ($desktop) {
-          $resultat = $pdo->query("SELECT chemin_pc FROM images WHERE url ='$url'");
-          $path = $resultat->fetch(PDO::FETCH_ASSOC);
-          ?>
-          <img src="<?php echo $prefix . $path['chemin_pc'] ?>">
-          <?php
-        }
+          var_dump($resultat)
+            ?>
+            <img src="<?php echo $prefix . $path[$device] ?>">
+            <?php
+          }
       } else { 
         echo '<br/>Erreur d\'écriture vers : '.LOCAL_IMG_DIR.$image_to_download['local_img_name']; 
       } 
